@@ -36,14 +36,12 @@ public:
 };
 
 class Entity : public Tile { // Класс сущности (Может двигаться)
+public:
 	struct Position {
 		int x;
 		int y;
 	};
 
-	Position position;
-	bool moveable = true;
-public:
 	Entity(char symbol, int x, int y) : Tile(symbol, false) {
 		this->position.x = x;
 		this->position.y = y;
@@ -52,6 +50,9 @@ public:
 	Position GetPosition() {
 		return position;
 	}
+private:
+	Position position;
+	bool moveable = true;
 };
 
 class Player : public Entity { // Класс игрока (как сущность, но его ссылка сохраняется в отдельном поле)
@@ -107,7 +108,6 @@ public:
 			delete tiles[i];
 		}
 		delete[] tiles;
-		//delete player; Бесполезен, так как он находиться в массиве, который уже удалён
 	}
 
 	string GetMapAsString() {
@@ -154,15 +154,14 @@ public:
 		if (tiles[maxX*(player->GetPosition().y + down) + (player->GetPosition().x + right)]->GetHasCollision()) {
 			return;
 		}
-		int oldX = player->GetPosition().x;
-		int oldY = player->GetPosition().y;
+		Player::Position oldPos = player->GetPosition();
 
-		delete tiles[maxX * (oldY + down) + (oldX + right)];
-		player = new Player(oldX + right, oldY + down);
-		tiles[maxX * (oldY + down) + (oldX + right)] = player;
+		delete tiles[maxX * (oldPos.y + down) + (oldPos.x + right)];
+		player = new Player(oldPos.x + right, oldPos.y + down);
+		tiles[maxX * (oldPos.y + down) + (oldPos.x + right)] = player;
 		
-		delete tiles[maxX * oldY + oldX];
-		tiles[maxX * oldY + oldX] = new Tile(' ');
+		delete tiles[maxX * oldPos.y + oldPos.x];
+		tiles[maxX * oldPos.y + oldPos.x] = new Tile(' ');
 	}
 };
 
@@ -213,7 +212,5 @@ int main() {
 				continue;
 		}
 	}
-
-	cout << map->GetMapAsString();
 	return 0;
 }
